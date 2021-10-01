@@ -24,7 +24,7 @@
     "npm-publish": "npm run lint && npm run build && npm test && npm publish",
     "lint": "eslint --ext js,jsx .",
     "install-test-webpack-versions": "./bin/install-test-webpack-versions.sh",
-    "test": "npm run install-test-webpack-versions && jest --runInBand",
+    "test": "npm run install-test-webpack-versions && jest --runInBand --detectOpenHandles --forceExit",
     "test-dev": "npm run install-test-webpack-versions && jest --watch --runInBand"
   },
   "files": [

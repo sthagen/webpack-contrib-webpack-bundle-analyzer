@@ -12,6 +12,16 @@ _Note: Gaps between patch versions are faulty, broken or test releases._
 
 ## UNRELEASED
 
+## 4.5.0
+
+ * **Improvement**
+   * Stop publishing src folder to npm ([#478](https://github.com/webpack-contrib/webpack-bundle-analyzer/pull/478) by [@wood1986](https://github.com/wood1986))
+
+* **Internal**
+  * Update some dependencies ([#448](https://github.com/webpack-contrib/webpack-bundle-analyzer/pull/448))
+  * Replace nightmare with Puppeteer ([#469](https://github.com/webpack-contrib/webpack-bundle-analyzer/pull/469) by [@valscion](https://github.com/valscion))
+  * Replace Mocha with Jest ([#470](https://github.com/webpack-contrib/webpack-bundle-analyzer/pull/470) by [@valscion](https://github.com/valscion))
+
 ## 4.4.2
 
  * **Bug Fix**

@@ -13,8 +13,16 @@ _Note: Gaps between patch versions are faulty, broken or test releases._
 ## UNRELEASED
 
 * **Internal**
+  * Make module much slimmer by replacing all `lodash.*` packages ([#612](https://github.com/webpack-contrib/webpack-bundle-analyzer/pull/612)) by [@sukkaw](https://github.com/sukkaw).
+
+## 4.9.1
+
+* **Internal**
   * Replace some lodash usages with JavaScript native API ([#505](https://github.com/webpack-contrib/webpack-bundle-analyzer/pull/505)) by [@sukkaw](https://github.com/sukkaw).
   * Make module much slimmer ([#609](https://github.com/webpack-contrib/webpack-bundle-analyzer/pull/609)) by [@sukkaw](https://github.com/sukkaw).
+
+* **Bug Fix**
+  * fix `analyzerMode: 'server'` on certain machines ([#611](https://github.com/webpack-contrib/webpack-bundle-analyzer/pull/611) by [@panbenson](https://github.com/panbenson))
 
 ## 4.9.0
 

@@ -12,6 +12,8 @@ _Note: Gaps between patch versions are faulty, broken or test releases._
 
 ## UNRELEASED
 
+## 5.0.0
+
 * **Breaking Change**
   * Remove explicit support for Node versions below 20.9.0 ([#676](https://github.com/webpack-contrib/webpack-bundle-analyzer/pull/676) by [@valscion](https://github.com/valscion))
 

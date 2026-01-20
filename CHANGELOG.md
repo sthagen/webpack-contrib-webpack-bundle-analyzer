@@ -12,6 +12,9 @@ _Note: Gaps between patch versions are faulty, broken or test releases._
 
 ## UNRELEASED
 
+* **New Feature**
+  * Add support for Zstandard compression ([#693](https://github.com/webpack-contrib/webpack-bundle-analyzer/pull/693) by [@bjohansebas](https://github.com/bjohansebas))
+
 * **Internal**
   * Update `sirv` dependency ([#692](https://github.com/webpack-contrib/webpack-bundle-analyzer/pull/692) by [@bjohansebas](https://github.com/bjohansebas))
   * Update `ws` dependency ([#691](https://github.com/webpack-contrib/webpack-bundle-analyzer/pull/691) by [@bjohansebas](https://github.com/bjohansebas))

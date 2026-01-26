@@ -1,6 +1,3 @@
-const chai = require("chai");
-chai.use(require("chai-subset"));
-const { expect } = chai;
 const crypto = require("crypto");
 const net = require("net");
 
@@ -70,7 +67,7 @@ describe("WebSocket server", function () {
 
           // Because data may be received in multiple chunks, only check the first one
           if (count === 1) {
-            expect(chunk.equals(expected)).to.be.true;
+            expect(chunk.equals(expected)).toBe(true);
           }
 
           // Send a WebSocket frame with a reserved opcode (5) to trigger an error
@@ -107,28 +104,26 @@ describe("getEntrypoints", () => {
         },
       },
     };
-    expect(JSON.stringify(getEntrypoints(bundleStats))).to.equal(
+    expect(JSON.stringify(getEntrypoints(bundleStats))).toBe(
       JSON.stringify(["A", "B"]),
     );
   });
 
   it("should handle when bundlestats is null or undefined ", function () {
-    expect(JSON.stringify(getEntrypoints(null))).to.equal(JSON.stringify([]));
-    expect(JSON.stringify(getEntrypoints(undefined))).to.equal(
-      JSON.stringify([]),
-    );
+    expect(JSON.stringify(getEntrypoints(null))).toBe(JSON.stringify([]));
+    expect(JSON.stringify(getEntrypoints(undefined))).toBe(JSON.stringify([]));
   });
 
   it("should handle when bundlestats is empty", function () {
     const bundleStatsWithoutEntryPoints = {};
-    expect(
-      JSON.stringify(getEntrypoints(bundleStatsWithoutEntryPoints)),
-    ).to.equal(JSON.stringify([]));
+    expect(JSON.stringify(getEntrypoints(bundleStatsWithoutEntryPoints))).toBe(
+      JSON.stringify([]),
+    );
   });
 
   it("should handle when entrypoints is empty", function () {
     const bundleStatsEmptyEntryPoint = { entrypoints: {} };
-    expect(JSON.stringify(getEntrypoints(bundleStatsEmptyEntryPoint))).to.equal(
+    expect(JSON.stringify(getEntrypoints(bundleStatsEmptyEntryPoint))).toBe(
       JSON.stringify([]),
     );
   });

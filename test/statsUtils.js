@@ -1,6 +1,3 @@
-const chai = require("chai");
-chai.use(require("chai-subset"));
-const { expect } = chai;
 const path = require("path");
 const { readFileSync } = require("fs");
 const globby = require("globby");
@@ -69,7 +66,7 @@ describe("StatsSerializeStream", () => {
 });
 
 async function expectProperJson(json) {
-  expect(await stringify(json)).to.equal(JSON.stringify(json, null, 2));
+  expect(await stringify(json)).toBe(JSON.stringify(json, null, 2));
 }
 
 async function stringify(json) {

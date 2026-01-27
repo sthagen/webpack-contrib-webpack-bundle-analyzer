@@ -1,14 +1,40 @@
 const { readdirSync } = require("fs");
 const webpack = require("webpack");
-const memoize = require("lodash.memoize");
-const partial = require("lodash.partial");
-const merge = require("lodash.merge");
 
 global.webpackCompile = webpackCompile;
 global.makeWebpackConfig = makeWebpackConfig;
 global.forEachWebpackVersion = forEachWebpackVersion;
 
 const BundleAnalyzerPlugin = require("../lib/BundleAnalyzerPlugin");
+
+/**
+ * @template T
+ * @typedef {() => T} FunctionReturning
+ */
+
+/**
+ * @template T
+ * @param {FunctionReturning<T>} fn memorized function
+ * @returns {FunctionReturning<T>} new function
+ */
+const memoize = (fn) => {
+  let cache = false;
+  /** @type {T | undefined} */
+  let result;
+  return () => {
+    if (cache) {
+      return /** @type {T} */ (result);
+    }
+
+    result = fn();
+    cache = true;
+    // Allow to clean up memory for fn
+    // and all dependent resources
+    /** @type {FunctionReturning<T> | undefined} */
+    (fn) = undefined;
+    return /** @type {T} */ (result);
+  };
+};
 
 const getAvailableWebpackVersions = memoize(() =>
   readdirSync(`${__dirname}/webpack-versions`, { withFileTypes: true })
@@ -51,7 +77,7 @@ function forEachWebpackVersion(versions, cb) {
     cb({
       it: itFn,
       version,
-      webpackCompile: partial(webpackCompile, partial.placeholder, version),
+      webpackCompile: (config) => webpackCompile(config, version),
     });
   }
 }
@@ -95,19 +121,18 @@ async function webpackCompile(config, version) {
   await wait(1);
 }
 
-function makeWebpackConfig(opts) {
-  opts = merge(
-    {
-      analyzerOpts: {
-        analyzerMode: "static",
-        openAnalyzer: false,
-        logLevel: "error",
-      },
-      minify: false,
-      multipleChunks: false,
+function makeWebpackConfig(opts = {}) {
+  opts = {
+    ...opts,
+    minify: false,
+    multipleChunks: false,
+    analyzerOpts: {
+      analyzerMode: "static",
+      openAnalyzer: false,
+      logLevel: "error",
+      ...(opts.analyzerOpts || {}),
     },
-    opts,
-  );
+  };
 
   return {
     context: __dirname,

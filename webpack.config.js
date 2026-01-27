@@ -69,7 +69,6 @@ module.exports = {
             ],
           ],
           plugins: [
-            "lodash",
             ["@babel/plugin-proposal-decorators", { legacy: true }],
             ["@babel/plugin-transform-class-properties", { loose: true }],
             [
@@ -99,7 +98,6 @@ module.exports = {
             options: {
               postcssOptions: {
                 plugins: [
-                  require("postcss-icss-values"),
                   require("autoprefixer"),
                   ...(!isDev ? [require("cssnano")()] : []),
                 ],

@@ -1,6 +1,6 @@
 import { Component } from "preact";
-import filesize from "filesize";
-import { computed } from "mobx";
+import { filesize } from "filesize";
+import { computed, makeObservable } from "mobx";
 import { observer } from "mobx-react";
 
 import { isChunkParsed } from "../utils";
@@ -13,7 +13,7 @@ import Checkbox from "./Checkbox";
 import CheckboxList from "./CheckboxList";
 import ContextMenu from "./ContextMenu";
 
-import s from "./ModulesTreemap.css";
+import * as s from "./ModulesTreemap.css";
 import Search from "./Search";
 import { store } from "../store";
 import ModulesList from "./ModulesList";
@@ -37,8 +37,7 @@ function getSizeSwitchItems() {
   return items;
 }
 
-@observer
-export default class ModulesTreemap extends Component {
+class ModulesTreemap extends Component {
   mouseCoords = {
     x: 0,
     y: 0,
@@ -52,6 +51,18 @@ export default class ModulesTreemap extends Component {
     showTooltip: false,
     tooltipContent: null,
   };
+
+  constructor() {
+    super();
+
+    makeObservable(this, {
+      sizeSwitchItems: computed,
+      activeSizeItem: computed,
+      chunkItems: computed,
+      highlightedModules: computed,
+      foundModulesInfo: computed,
+    });
+  }
 
   componentDidMount() {
     document.addEventListener("mousemove", this.handleMouseMove, true);
@@ -192,17 +203,17 @@ export default class ModulesTreemap extends Component {
     return [`${label} (`, <strong>{filesize(size)}</strong>, ")"];
   };
 
-  @computed get sizeSwitchItems() {
+  get sizeSwitchItems() {
     return store.hasParsedSizes
       ? getSizeSwitchItems()
       : getSizeSwitchItems().slice(0, 1);
   }
 
-  @computed get activeSizeItem() {
+  get activeSizeItem() {
     return this.sizeSwitchItems.find((item) => item.prop === store.activeSize);
   }
 
-  @computed get chunkItems() {
+  get chunkItems() {
     const { allChunks, activeSize } = store;
     let chunkItems = [...allChunks];
 
@@ -217,11 +228,11 @@ export default class ModulesTreemap extends Component {
     return chunkItems;
   }
 
-  @computed get highlightedModules() {
+  get highlightedModules() {
     return new Set(store.foundModules);
   }
 
-  @computed get foundModulesInfo() {
+  get foundModulesInfo() {
     if (!store.isSearching) {
       // `&nbsp;` to reserve space
       return "\u00A0";
@@ -383,3 +394,5 @@ export default class ModulesTreemap extends Component {
     );
   }
 }
+
+export default observer(ModulesTreemap);

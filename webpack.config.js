@@ -20,7 +20,6 @@ module.exports = {
       react: "preact/compat",
       "react-dom/test-utils": "preact/test-utils",
       "react-dom": "preact/compat",
-      mobx: require.resolve("mobx/lib/mobx.es6.js"),
     },
   },
   devtool: isDev ? "eval" : "source-map",
@@ -53,7 +52,6 @@ module.exports = {
               "@babel/preset-env",
               {
                 // Target browsers are specified in .browserslistrc
-
                 modules: false,
                 useBuiltIns: "usage",
                 corejs: require("./package.json").devDependencies["core-js"],
@@ -69,8 +67,6 @@ module.exports = {
             ],
           ],
           plugins: [
-            "lodash",
-            ["@babel/plugin-proposal-decorators", { legacy: true }],
             ["@babel/plugin-transform-class-properties", { loose: true }],
             [
               "@babel/plugin-transform-runtime",
@@ -99,7 +95,6 @@ module.exports = {
             options: {
               postcssOptions: {
                 plugins: [
-                  require("postcss-icss-values"),
                   require("autoprefixer"),
                   ...(!isDev ? [require("cssnano")()] : []),
                 ],

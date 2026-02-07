@@ -1,12 +1,76 @@
 const childProcess = require("node:child_process");
 const fs = require("node:fs");
 const path = require("node:path");
+const url = require("node:url");
 const puppeteer = require("puppeteer");
 const { isZstdSupported } = require("../src/sizeUtils");
 
 let browser;
 
-jest.setTimeout(15000);
+function generateReportFrom(statsFilename, additionalOptions = "") {
+  childProcess.execSync(
+    `../lib/bin/analyzer.js ${additionalOptions} -m static -r output/report.html -O stats/${statsFilename}`,
+    {
+      cwd: __dirname,
+    },
+  );
+}
+
+async function getTitleFromReport() {
+  const page = await browser.newPage();
+  await page.goto(
+    url.pathToFileURL(path.resolve(__dirname, "./output/report.html")),
+  );
+  return await page.title();
+}
+
+function forEachChartItem(chartData, cb) {
+  for (const item of chartData) {
+    cb(item);
+
+    if (item.groups) {
+      forEachChartItem(item.groups, cb);
+    }
+  }
+}
+
+async function getChartData() {
+  const page = await browser.newPage();
+  await page.goto(
+    url.pathToFileURL(path.resolve(__dirname, "./output/report.html")),
+  );
+  return await page.evaluate(() => globalThis.chartData);
+}
+
+async function getCompressionAlgorithm() {
+  const page = await browser.newPage();
+  await page.goto(
+    url.pathToFileURL(path.resolve(__dirname, "./output/report.html")),
+  );
+  return await page.evaluate(() => globalThis.compressionAlgorithm);
+}
+
+async function expectValidReport(opts) {
+  const { bundleLabel = "bundle.js", statSize = 141 } = opts || {};
+
+  expect(fs.existsSync(path.resolve(__dirname, "./output/report.html"))).toBe(
+    true,
+  );
+  const chartData = await getChartData();
+  expect(chartData[0]).toMatchObject({
+    label: bundleLabel,
+    statSize,
+  });
+}
+
+function generateJSONReportFrom(statsFilename) {
+  childProcess.execSync(
+    `../lib/bin/analyzer.js -m json -r output/report.json stats/${statsFilename}`,
+    {
+      cwd: __dirname,
+    },
+  );
+}
 
 describe("Analyzer", () => {
   beforeAll(async () => {
@@ -96,6 +160,7 @@ describe("Analyzer", () => {
     expect(chartData).toHaveLength(0);
   });
 
+  // eslint-disable-next-line jest/no-disabled-tests
   it.skip("should not filter out modules that we couldn't find during parsing", async () => {
     generateReportFrom("with-missing-parsed-module/stats.json");
     const chartData = await getChartData();
@@ -108,6 +173,7 @@ describe("Analyzer", () => {
     expect(unparsedModules).toBe(1);
   });
 
+  // eslint-disable-next-line jest/no-disabled-tests
   it.skip("should gracefully parse invalid chunks", async () => {
     generateReportFrom("with-invalid-chunk/stats.json");
     const chartData = await getChartData();
@@ -124,6 +190,7 @@ describe("Analyzer", () => {
     expect(invalidChunk.parsedSize).toBe(30);
   });
 
+  // eslint-disable-next-line jest/no-disabled-tests
   it.skip("should gracefully process missing chunks", async () => {
     generateReportFrom("with-missing-chunk/stats.json");
     const chartData = await getChartData();
@@ -141,6 +208,7 @@ describe("Analyzer", () => {
     });
   });
 
+  // eslint-disable-next-line jest/no-disabled-tests
   it.skip("should gracefully process missing module chunks", async () => {
     generateReportFrom("with-missing-module-chunks/stats.json");
     const chartData = await getChartData();
@@ -198,7 +266,7 @@ describe("Analyzer", () => {
     );
     const chartData = await getChartData();
     expect(chartData).toMatchObject(
-      require("./stats/webpack-5-bundle-with-concatenated-entry-module/expected-chart-data"),
+      require("./stats/webpack-5-bundle-with-concatenated-entry-module/expected-chart-data.json"),
     );
   });
 
@@ -300,60 +368,3 @@ describe("Analyzer", () => {
     });
   });
 });
-
-function generateJSONReportFrom(statsFilename) {
-  childProcess.execSync(
-    `../lib/bin/analyzer.js -m json -r output/report.json stats/${statsFilename}`,
-    {
-      cwd: __dirname,
-    },
-  );
-}
-
-function generateReportFrom(statsFilename, additionalOptions = "") {
-  childProcess.execSync(
-    `../lib/bin/analyzer.js ${additionalOptions} -m static -r output/report.html -O stats/${statsFilename}`,
-    {
-      cwd: __dirname,
-    },
-  );
-}
-
-async function getTitleFromReport() {
-  const page = await browser.newPage();
-  await page.goto(`file://${__dirname}/output/report.html`);
-  return await page.title();
-}
-
-async function getChartData() {
-  const page = await browser.newPage();
-  await page.goto(`file://${__dirname}/output/report.html`);
-  return await page.evaluate(() => window.chartData);
-}
-
-async function getCompressionAlgorithm() {
-  const page = await browser.newPage();
-  await page.goto(`file://${__dirname}/output/report.html`);
-  return await page.evaluate(() => window.compressionAlgorithm);
-}
-
-function forEachChartItem(chartData, cb) {
-  for (const item of chartData) {
-    cb(item);
-
-    if (item.groups) {
-      forEachChartItem(item.groups, cb);
-    }
-  }
-}
-
-async function expectValidReport(opts) {
-  const { bundleLabel = "bundle.js", statSize = 141 } = opts || {};
-
-  expect(fs.existsSync(`${__dirname}/output/report.html`)).toBe(true);
-  const chartData = await getChartData();
-  expect(chartData[0]).toMatchObject({
-    label: bundleLabel,
-    statSize,
-  });
-}

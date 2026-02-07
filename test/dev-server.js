@@ -2,14 +2,19 @@ const { spawn } = require("node:child_process");
 const fs = require("node:fs");
 const path = require("node:path");
 
-const ROOT = `${__dirname}/dev-server`;
+const ROOT = path.resolve(__dirname, "./dev-server");
 const WEBPACK_CONFIG_PATH = `${ROOT}/webpack.config.js`;
 
 const webpackConfig = require(WEBPACK_CONFIG_PATH);
 
 const timeout = 15000;
 
-jest.setTimeout(timeout);
+async function deleteOutputDirectory() {
+  await fs.promises.rm(webpackConfig.output.path, {
+    force: true,
+    recursive: true,
+  });
+}
 
 describe("Webpack Dev Server", () => {
   beforeAll(deleteOutputDirectory);
@@ -27,10 +32,18 @@ describe("Webpack Dev Server", () => {
       },
     );
 
+    function finish(errorMessage) {
+      // eslint-disable-next-line no-use-before-define
+      clearInterval(reportCheckIntervalId);
+      devServer.kill();
+      done(errorMessage ? new Error(errorMessage) : null);
+    }
+
     const reportCheckIntervalId = setInterval(() => {
       if (
         fs.existsSync(path.resolve(webpackConfig.output.path, "./report.html"))
       ) {
+        expect(true).toBe(true);
         finish();
       } else if (Date.now() - startedAt > timeout - 1000) {
         finish(
@@ -38,18 +51,5 @@ describe("Webpack Dev Server", () => {
         );
       }
     }, 300);
-
-    function finish(errorMessage) {
-      clearInterval(reportCheckIntervalId);
-      devServer.kill();
-      done(errorMessage ? new Error(errorMessage) : null);
-    }
   });
 });
-
-async function deleteOutputDirectory() {
-  await fs.promises.rm(webpackConfig.output.path, {
-    force: true,
-    recursive: true,
-  });
-}

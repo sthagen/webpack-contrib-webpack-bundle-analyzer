@@ -15,11 +15,35 @@ class TestLogger extends Logger {
   }
 }
 
+function expectLoggerLevel(logger, level) {
+  logger.clear();
+
+  const levels = Logger.levels.filter((level) => level !== "silent");
+
+  for (const level of levels) {
+    logger[level]("msg1", "msg2");
+  }
+
+  const expectedLogs = levels
+    .filter(
+      (testLevel) =>
+        Logger.levels.indexOf(testLevel) >= Logger.levels.indexOf(level),
+    )
+    .map((testLevel) => [testLevel, "msg1", "msg2"]);
+
+  expect(logger.logs).toEqual(expectedLogs);
+}
+
+function invalidLogLevelMessage(level) {
+  return `Invalid log level "${level}". Use one of these: ${Logger.levels.join(", ")}`;
+}
+
 let logger;
 
 describe("Logger", () => {
   describe("level", () => {
     for (const testingLevel of Logger.levels) {
+      /* eslint-disable no-loop-func */
       describe(`"${testingLevel}"`, () => {
         beforeEach(() => {
           logger = new TestLogger(testingLevel);
@@ -72,26 +96,3 @@ describe("Logger", () => {
     });
   });
 });
-
-function expectLoggerLevel(logger, level) {
-  logger.clear();
-
-  const levels = Logger.levels.filter((level) => level !== "silent");
-
-  for (const level of levels) {
-    logger[level]("msg1", "msg2");
-  }
-
-  const expectedLogs = levels
-    .filter(
-      (testLevel) =>
-        Logger.levels.indexOf(testLevel) >= Logger.levels.indexOf(level),
-    )
-    .map((testLevel) => [testLevel, "msg1", "msg2"]);
-
-  expect(logger.logs).toEqual(expectedLogs);
-}
-
-function invalidLogLevelMessage(level) {
-  return `Invalid log level "${level}". Use one of these: ${Logger.levels.join(", ")}`;
-}

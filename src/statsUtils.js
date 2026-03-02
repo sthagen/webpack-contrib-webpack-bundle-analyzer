@@ -1,5 +1,6 @@
 const { createWriteStream } = require("node:fs");
 const { Readable } = require("node:stream");
+const { pipeline } = require("node:stream/promises");
 
 /** @typedef {import("./BundleAnalyzerPlugin").EXPECTED_ANY} EXPECTED_ANY */
 /** @typedef {import("webpack").StatsCompilation} StatsCompilation */
@@ -91,12 +92,7 @@ class StatsSerializeStream extends Readable {
  * @returns {Promise<void>}
  */
 async function writeStats(stats, filepath) {
-  return new Promise((resolve, reject) => {
-    new StatsSerializeStream(stats)
-      .on("end", resolve)
-      .on("error", reject)
-      .pipe(createWriteStream(filepath));
-  });
+  await pipeline(new StatsSerializeStream(stats), createWriteStream(filepath));
 }
 
 module.exports = { StatsSerializeStream, writeStats };

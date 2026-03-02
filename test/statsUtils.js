@@ -1,7 +1,7 @@
 const { readFileSync } = require("node:fs");
 const path = require("node:path");
 const { globSync } = require("tinyglobby");
-const { StatsSerializeStream } = require("../src/statsUtils");
+const { StatsSerializeStream, writeStats } = require("../src/statsUtils");
 
 async function stringify(json) {
   return new Promise((resolve, reject) => {
@@ -77,4 +77,17 @@ describe("StatsSerializeStream", () => {
       expectProperJson(json);
     });
   }
+});
+
+describe("writeStats", () => {
+  it("should fail gracefully if writing to a non-existent directory", async () => {
+    const nonExistentPath = path.join(
+      __dirname,
+      "non-existent-dir",
+      "stats.json",
+    );
+    await expect(
+      writeStats({ foo: "bar" }, nonExistentPath),
+    ).rejects.toMatchObject({ code: "ENOENT" });
+  });
 });
